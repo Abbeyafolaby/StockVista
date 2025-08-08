@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Tracker - Investment Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif']
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a'
+                        },
+                        'success': {
+                            50: '#ecfdf5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857'
+                        },
+                        'danger': {
+                            50: '#fef2f2',
+                            500: '#ef4444',
+                            600: '#dc2626',
+                            700: '#b91c1c'
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/heroicons@2.0.16/24/outline/index.js" type="module"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+    <!-- @COMPONENT: AuthModal [login/register modal] -->
+    <div id="authModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md mx-4">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">Welcome to Portfolio Tracker</h2>
+                <p class="text-slate-600">Sign in to manage your investments</p>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex rounded-lg border border-slate-200 p-1">
+                    <button class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors bg-primary-600 text-white" data-tab="login">
+                        Sign In
+                    </button>
+                    <button class="flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors text-slate-600 hover:text-slate-900" data-tab="register">
+                        Register
+                    </button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="loginForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Enter your email" data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Enter your password" data-mock="true">
+                    </div>
+                    <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors font-medium" data-event="click:handleLogin">
+                        Sign In
+                    </button>
+                </form>
+
+                <!-- Register Form -->
+                <form id="registerForm" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
+                        <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Enter your full name" data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Enter your email" data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Create a password" data-mock="true">
+                    </div>
+                    <button type="submit" class="w-full bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors font-medium" data-event="click:handleRegister">
+                        Create Account
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AuthModal -->
+
+    <!-- @COMPONENT: Navigation [main navigation bar] -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-slate-900">Portfolio Tracker</span>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <button class="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 transition-colors font-medium" data-event="click:showAddInvestmentModal">
+                        Add Investment
+                    </button>
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-slate-300 rounded-full"></div>
+                        <span class="text-sm font-medium text-slate-700" data-bind="user.name">John Doe</span>
+                        <button class="text-slate-500 hover:text-slate-700" data-event="click:logout">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- @END_COMPONENT: Navigation -->
+
+    <!-- @COMPONENT: MainDashboard [portfolio overview and management] -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Portfolio Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Portfolio Value</p>
+                        <p class="text-2xl font-bold text-slate-900" data-bind="portfolio.totalValue">$52,847.32</p>
+                    </div>
+                    <div class="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Gain/Loss</p>
+                        <p class="text-2xl font-bold text-success-600" data-bind="portfolio.totalGainLoss">+$4,823.47</p>
+                        <p class="text-sm text-success-600" data-bind="portfolio.gainLossPercent">+10.04%</p>
+                    </div>
+                    <div class="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-success-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Invested</p>
+                        <p class="text-2xl font-bold text-slate-900" data-bind="portfolio.totalInvested">$48,023.85</p>
+                    </div>
+                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-slate-600">Total Holdings</p>
+                        <p class="text-2xl font-bold text-slate-900" data-bind="portfolio.totalHoldings">8</p>
+                        <p class="text-sm text-slate-600">investments</p>
+                    </div>
+                    <div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Investment Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-slate-900">Your Investments</h2>
+                    <div class="flex items-center space-x-2">
+                        <button class="text-slate-500 hover:text-slate-700 p-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                            </svg>
+                        </button>
+                        <button class="text-slate-500 hover:text-slate-700 p-1">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Stock</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Purchase Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Current Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Current Value</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Gain/Loss</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-slate-200">
+                        <!-- @MAP: investments.map(investment => ( -->
+                        <tr class="hover:bg-slate-50" data-mock="true">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-900" data-bind="investment.symbol">AAPL</div>
+                                    <div class="text-sm text-slate-500" data-bind="investment.companyName">Apple Inc.</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900" data-bind="investment.purchaseDate">2024-01-15</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900" data-bind="investment.quantity">50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900" data-bind="investment.purchasePrice">$180.25</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900" data-bind="investment.currentPrice">$195.30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900" data-bind="investment.currentValue">$9,765.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800" data-bind="investment.gainLoss">+$752.50 (+8.35%)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-primary-600 hover:text-primary-900" data-event="click:editInvestment">Edit</button>
+                                    <button class="text-danger-600 hover:text-danger-900" data-event="click:deleteInvestment">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50" data-mock="true">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-900">TSLA</div>
+                                    <div class="text-sm text-slate-500">Tesla, Inc.</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">2024-02-01</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">25</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$245.80</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$268.45</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">$6,711.25</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">+$566.25 (+9.20%)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-primary-600 hover:text-primary-900">Edit</button>
+                                    <button class="text-danger-600 hover:text-danger-900">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50" data-mock="true">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-900">MSFT</div>
+                                    <div class="text-sm text-slate-500">Microsoft Corporation</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">2024-01-22</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">30</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$378.90</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$385.20</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">$11,556.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-800">+$189.00 (+1.66%)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-primary-600 hover:text-primary-900">Edit</button>
+                                    <button class="text-danger-600 hover:text-danger-900">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr class="hover:bg-slate-50" data-mock="true">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div>
+                                    <div class="text-sm font-medium text-slate-900">AMZN</div>
+                                    <div class="text-sm text-slate-500">Amazon.com, Inc.</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">2024-02-10</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">40</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$155.45</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900">$148.90</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">$5,956.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-800">-$262.00 (-4.21%)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button class="text-primary-600 hover:text-primary-900">Edit</button>
+                                    <button class="text-danger-600 hover:text-danger-900">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- @END_MAP )) -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: MainDashboard -->
+
+    <!-- @COMPONENT: AddInvestmentModal [form to add new investment] -->
+    <div id="addInvestmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-900">Add New Investment</h2>
+                <button class="text-slate-400 hover:text-slate-600" data-event="click:closeAddInvestmentModal">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form class="space-y-4" data-event="submit:addInvestment">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Purchase Date</label>
+                        <input type="date" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" required data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Stock Symbol</label>
+                        <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase" placeholder="AAPL" required data-mock="true">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                    <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="Apple Inc." required data-mock="true">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
+                        <input type="number" min="1" step="1" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="100" required data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Purchase Price per Share</label>
+                        <input type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="150.00" required data-mock="true">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Current Price per Share</label>
+                    <input type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" placeholder="160.00" required data-mock="true">
+                    <p class="text-xs text-slate-500 mt-1">Enter the current market price to calculate your portfolio value</p>
+                </div>
+
+                <div class="bg-slate-50 rounded-lg p-4">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-slate-600">Total Investment:</span>
+                        <span class="font-medium text-slate-900" id="totalInvestment">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm mt-1">
+                        <span class="text-slate-600">Current Value:</span>
+                        <span class="font-medium text-slate-900" id="currentValue">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm mt-1">
+                        <span class="text-slate-600">Gain/Loss:</span>
+                        <span class="font-medium" id="gainLoss">$0.00 (0.00%)</span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" class="flex-1 bg-slate-200 text-slate-800 py-2 px-4 rounded-md hover:bg-slate-300 transition-colors font-medium" data-event="click:closeAddInvestmentModal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors font-medium" data-implementation="Should validate form and save to database">
+                        Add Investment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: AddInvestmentModal -->
+
+    <!-- @COMPONENT: EditInvestmentModal [form to edit existing investment] -->
+    <div id="editInvestmentModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg mx-4 max-h-screen overflow-y-auto">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-xl font-bold text-slate-900">Edit Investment</h2>
+                <button class="text-slate-400 hover:text-slate-600" data-event="click:closeEditInvestmentModal">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <form class="space-y-4" data-event="submit:updateInvestment">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Purchase Date</label>
+                        <input type="date" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="2024-01-15" required data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Stock Symbol</label>
+                        <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent uppercase" value="AAPL" required data-mock="true">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Company Name</label>
+                    <input type="text" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="Apple Inc." required data-mock="true">
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Quantity</label>
+                        <input type="number" min="1" step="1" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="50" required data-mock="true">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Purchase Price per Share</label>
+                        <input type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="180.25" required data-mock="true">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Current Price per Share</label>
+                    <input type="number" min="0" step="0.01" class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent" value="195.30" required data-mock="true">
+                    <p class="text-xs text-slate-500 mt-1">Update the current market price to recalculate your portfolio value</p>
+                </div>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="button" class="flex-1 bg-slate-200 text-slate-800 py-2 px-4 rounded-md hover:bg-slate-300 transition-colors font-medium" data-event="click:closeEditInvestmentModal">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 bg-primary-600 text-white py-2 px-4 rounded-md hover:bg-primary-700 transition-colors font-medium" data-implementation="Should validate form and update database">
+                        Update Investment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- @END_COMPONENT: EditInvestmentModal -->
+
+    <script>
+        // TODO: Implement user authentication, investment CRUD operations, and portfolio calculations
+        // TODO: Integrate with backend API for data persistence using MongoDB
+        // TODO: Add form validation and error handling
+        // TODO: Implement real-time portfolio value updates
+
+        (function() {
+            // Modal management
+            const authModal = document.getElementById('authModal');
+            const addInvestmentModal = document.getElementById('addInvestmentModal');
+            const editInvestmentModal = document.getElementById('editInvestmentModal');
+
+            // Auth tab switching
+            document.querySelectorAll('[data-tab]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const tab = this.dataset.tab;
+                    const loginForm = document.getElementById('loginForm');
+                    const registerForm = document.getElementById('registerForm');
+                    
+                    document.querySelectorAll('[data-tab]').forEach(btn => {
+                        btn.classList.remove('bg-primary-600', 'text-white');
+                        btn.classList.add('text-slate-600', 'hover:text-slate-900');
+                    });
+                    
+                    this.classList.add('bg-primary-600', 'text-white');
+                    this.classList.remove('text-slate-600', 'hover:text-slate-900');
+                    
+                    if (tab === 'login') {
+                        loginForm.classList.remove('hidden');
+                        registerForm.classList.add('hidden');
+                    } else {
+                        loginForm.classList.add('hidden');
+                        registerForm.classList.remove('hidden');
+                    }
+                });
+            });
+
+            // Show add investment modal
+            document.querySelector('[data-event="click:showAddInvestmentModal"]').addEventListener('click', function() {
+                addInvestmentModal.classList.remove('hidden');
+            });
+
+            // Close modals
+            document.querySelector('[data-event="click:closeAddInvestmentModal"]').addEventListener('click', function() {
+                addInvestmentModal.classList.add('hidden');
+            });
+
+            document.querySelector('[data-event="click:closeEditInvestmentModal"]').addEventListener('click', function() {
+                editInvestmentModal.classList.add('hidden');
+            });
+
+            // Edit investment buttons
+            document.querySelectorAll('[data-event="click:editInvestment"]').forEach(button => {
+                button.addEventListener('click', function() {
+                    editInvestmentModal.classList.remove('hidden');
+                });
+            });
+
+            // Investment calculation in add form
+            const addForm = document.querySelector('#addInvestmentModal form');
+            const quantityInput = addForm.querySelector('input[type="number"][placeholder="100"]');
+            const purchasePriceInput = addForm.querySelector('input[placeholder="150.00"]');
+            const currentPriceInput = addForm.querySelector('input[placeholder="160.00"]');
+
+            function updateCalculations() {
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const purchasePrice = parseFloat(purchasePriceInput.value) || 0;
+                const currentPrice = parseFloat(currentPriceInput.value) || 0;
+
+                const totalInvestment = quantity * purchasePrice;
+                const currentValue = quantity * currentPrice;
+                const gainLoss = currentValue - totalInvestment;
+                const gainLossPercent = totalInvestment > 0 ? (gainLoss / totalInvestment) * 100 : 0;
+
+                document.getElementById('totalInvestment').textContent = `$${totalInvestment.toFixed(2)}`;
+                document.getElementById('currentValue').textContent = `$${currentValue.toFixed(2)}`;
+                
+                const gainLossElement = document.getElementById('gainLoss');
+                const sign = gainLoss >= 0 ? '+' : '';
+                gainLossElement.textContent = `${sign}$${gainLoss.toFixed(2)} (${sign}${gainLossPercent.toFixed(2)}%)`;
+                
+                if (gainLoss >= 0) {
+                    gainLossElement.className = 'font-medium text-success-600';
+                } else {
+                    gainLossElement.className = 'font-medium text-danger-600';
+                }
+            }
+
+            [quantityInput, purchasePriceInput, currentPriceInput].forEach(input => {
+                input.addEventListener('input', updateCalculations);
+            });
+
+            // Close modals when clicking outside
+            [authModal, addInvestmentModal, editInvestmentModal].forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Show auth modal on page load (simulate not logged in)
+            // authModal.classList.remove('hidden');
+        })();
+    </script>
+</body>
+</html>
